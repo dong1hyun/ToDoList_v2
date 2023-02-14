@@ -4,21 +4,21 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { toDoState } from "./atoms";
 import Board from "./Components/Board";
+import CategoryAdd from "./Components/CategoryAdd";
 
 const Wrapper = styled.div`
   display: flex;
-  max-width: 680px;
   width: 100%;
-  margin: 0 auto;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 50vh;
 `
 
 const Boards = styled.div`
-  display: flex;
-  gap: 10px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 10%;
+  margin: none;
 `
 
 function App() {
@@ -66,6 +66,7 @@ function App() {
   }
   return (
     <DragDropContext onDragEnd={onDragEnd}>
+      <CategoryAdd />
       <Wrapper>
         <Boards>
           {Object.keys(toDos).map(boardId => <Board boardId={boardId} key={boardId} toDos={toDos[boardId]} />)}

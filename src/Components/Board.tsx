@@ -3,24 +3,32 @@ import { Droppable } from "react-beautiful-dnd";
 import styled from "styled-components";
 import DraggableCard from "./DraggableCard";
 import { IToDo, toDoState } from "../atoms";
-import { useSetRecoilState,  } from "recoil";
-import { json } from "stream/consumers";
+import { useRecoilState } from "recoil";
 
 const Wrraper = styled.div`
   width: 300px;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 8px;
   min-height: 200px;
+  margin-bottom: 50px;
   background-color: ${(props) => props.theme.boardColor};
   display: flex;
   flex-direction: column;
+  margin-left: 30px;
+  box-shadow: 2px 2px 4px 4px #9ba6a5;
+`
+
+const BoardHeader = styled.div`
+    display: flex;
+    justify-content: flex-end;
 `
 
 const Title = styled.h2`
-  text-align: center;
-  font-weight: 600;
+margin-right: 33%;
+  display: inline;
   margin-bottom: 10px;
   font-size: 18px;
+  color: white;
 `;
 
 interface IAreaProps {
@@ -29,7 +37,7 @@ interface IAreaProps {
 }
 
 const Area = styled.div<IAreaProps>`
-    border-radius: 5px;
+    border-radius: 8px;
     background-color: ${props =>
         props.isDraggingOver ? '#dfe6e9'
             : props.draggingFromThis
@@ -46,10 +54,17 @@ const Form = styled.form`
     width: 100%;
     input {
         width: 100%;
-        background-color: #bbe4e9;
+        background-color:  white;
         border: 1px solid #e3e3e3;
         border-radius: 5px;
     }
+`
+
+const DeleteBoard = styled.button`
+    height: 20px;
+    font-size: 3px;
+    border-radius: 50%;
+    border: solid 1px gray;
 `
 
 interface IBoardProps {
@@ -62,15 +77,15 @@ interface IForm {
 }
 
 function Board({ toDos, boardId }: IBoardProps) {
-    const setToDos = useSetRecoilState(toDoState);
+    const [boards, setToDos] = useRecoilState(toDoState);
     const { register, setValue, handleSubmit } = useForm<IForm>()
     const onValid = ({ toDo }: IForm) => { //1.toDo
         const newToDo = {
-            id:Date.now(),
+            id: Date.now(),
             text: toDo,
         }
         setToDos((allBoards) => {
-            return {   
+            return {
                 ...allBoards,
                 [boardId]: [
                     newToDo,
@@ -80,9 +95,18 @@ function Board({ toDos, boardId }: IBoardProps) {
         });
         setValue("toDo", ""); //2.toDo
     };
+    const onClick = () => {
+        const boardsCopy = {...boards};
+        delete boardsCopy[boardId];
+        setToDos(boardsCopy);
+    }
     return (
         <Wrraper>
-            <Title>{boardId}</Title>
+            <BoardHeader>
+                <Title>{boardId}</Title>
+                <DeleteBoard onClick={onClick}>X</DeleteBoard>
+            </BoardHeader>
+            
             <Form onSubmit={handleSubmit(onValid)}>
                 <input
                     {...register("toDo", { required: true })/*3.toDo 같은 toDo?*/}
@@ -106,6 +130,7 @@ function Board({ toDos, boardId }: IBoardProps) {
                                 toDoId={toDo.id}
                                 toDoText={toDo.text}
                                 index={index}
+                                boardId={boardId}
                             />
                         ))}
                         {magic.placeholder}
